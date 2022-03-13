@@ -19,6 +19,11 @@ const (
 // func registerCallbacks() {
 // 	js.Global().Set("add", js.FuncOf(add))
 // }
+
+type Sketcher interface {
+	RenderLoop()
+}
+
 type Sketch struct {
 	ctx   *Canvas2d
 	angle float64
@@ -37,60 +42,15 @@ func main() {
 	ctx.SetWidth(width)
 	ctx.SetHeight(height)
 
-	sketch := Sketch{
-		ctx:   ctx,
-		angle: 0,
-	}
+	sketch := NewSketchVector(ctx)
 
 	sketchLoop := make(chan bool)
 	var renderer js.Func
 	renderer = js.FuncOf(func(this js.Value, arps []js.Value) interface{} {
-		sketch.renderLoop()
+		sketch.RenderLoop()
 		js.Global().Call("setTimeout", renderer)
 		return nil
 	})
 	js.Global().Call("setTimeout", renderer)
 	<-sketchLoop
-}
-
-func (sketch *Sketch) renderLoop() {
-
-	sketch.angle += 0.1
-
-	sketch.ctx.SetFillStyle(Color{R: 11, G: 5, B: 38})
-	sketch.ctx.FillRect(0, 0, width, height)
-
-	sketch.ctx.SetStrokeStyle(NewColor(255, 255, 255))
-
-	sketch.ctx.BeginPath()
-	sketch.ctx.Rect(10, 10, 100, 100)
-	sketch.ctx.Stroke()
-
-	sketch.ctx.Save()
-	sketch.ctx.Translate(width*0.5, height*0.5)
-	sketch.ctx.SetStrokeStyle(NewColor(255, 255, 255))
-	cross.Width = 50
-	cross.Height = 50
-	cross.Angle = sketch.angle
-	cross.Stroke(sketch.ctx)
-	sketch.ctx.Restore()
-
-	sketch.ctx.Save()
-	sketch.ctx.Translate(width*0.75, height*0.75)
-	sketch.ctx.SetFillStyle(NewColor(10, 255, 128))
-	cross.Width = 75
-	cross.Height = 75
-	cross.Angle = 360 - sketch.angle
-	cross.Fill(sketch.ctx)
-	sketch.ctx.Restore()
-
-	sketch.ctx.Save()
-	sketch.ctx.Translate(width*0.25, height*0.25)
-	sketch.ctx.SetStrokeStyle(NewColor(50, 255, 500))
-	arrow.Width = 200
-	arrow.Height = 200
-	arrow.Angle = sketch.angle
-	arrow.Stroke(sketch.ctx)
-	sketch.ctx.Restore()
-
 }
