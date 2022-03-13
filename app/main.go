@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	width  = 1080
-	height = 1080
+	width  = 1024
+	height = 768
 )
 
 // func add(this js.Value, i []js.Value) interface{} {
@@ -43,6 +43,8 @@ func main() {
 	ctx.SetHeight(height)
 
 	sketch := NewSketchVector(ctx)
+
+	NewSettingPane("settings")
 
 	sketchLoop := make(chan bool)
 	var renderer js.Func
