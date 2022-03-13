@@ -94,3 +94,45 @@ func (shape Shape) Stroke(ctx *Canvas2d) {
 
 	ctx.Stroke()
 }
+
+func (shape Shape) Fill(ctx *Canvas2d) {
+	ctx.BeginPath()
+
+	if len(shape.Vectors) < 2 {
+		ctx.Rect(0, 0, 1, 1)
+		ctx.Stroke()
+		return
+	}
+
+	if shape.Angle == 0 {
+		x := shape.Vectors[0].X * shape.Width * 0.5
+		y := shape.Vectors[0].Y * shape.Height * 0.5
+
+		ctx.MoveTo(x, y)
+		for i := 1; i < len(shape.Vectors); i++ {
+			x = shape.Vectors[i].X * shape.Width * 0.5
+			y = shape.Vectors[i].Y * shape.Height * 0.5
+			ctx.LineTo(x, y)
+		}
+	}
+
+	rad := shape.Angle * math.Pi / 180
+
+	x := shape.Vectors[0].X * shape.Width * 0.5
+	y := shape.Vectors[0].Y * shape.Height * 0.5
+
+	rx := x*math.Cos(rad) - y*math.Sin(rad)
+	ry := y*math.Cos(rad) + x*math.Sin(rad)
+	ctx.MoveTo(rx, ry)
+
+	for i := 1; i < len(shape.Vectors); i++ {
+		x = shape.Vectors[i].X * shape.Width * 0.5
+		y = shape.Vectors[i].Y * shape.Height * 0.5
+		rx := x*math.Cos(rad) - y*math.Sin(rad)
+		ry := y*math.Cos(rad) + x*math.Sin(rad)
+
+		ctx.LineTo(rx, ry)
+	}
+
+	ctx.Fill()
+}

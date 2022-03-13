@@ -76,6 +76,15 @@ func (sketch *Sketch) renderLoop() {
 	sketch.ctx.Restore()
 
 	sketch.ctx.Save()
+	sketch.ctx.Translate(width*0.75, height*0.75)
+	sketch.ctx.SetFillStyle(NewColor(10, 255, 128))
+	cross.Width = 75
+	cross.Height = 75
+	cross.Angle = 360 - sketch.angle
+	cross.Fill(sketch.ctx)
+	sketch.ctx.Restore()
+
+	sketch.ctx.Save()
 	sketch.ctx.Translate(width*0.25, height*0.25)
 	sketch.ctx.SetStrokeStyle(NewColor(50, 255, 500))
 	arrow.Width = 200
