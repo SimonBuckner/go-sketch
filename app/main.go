@@ -43,8 +43,7 @@ func main() {
 	ctx.SetHeight(height)
 
 	sketch := NewSketchVector(ctx)
-
-	NewSettingPane("settings")
+	sketch.sp.Render()
 
 	sketchLoop := make(chan bool)
 	var renderer js.Func
@@ -54,5 +53,6 @@ func main() {
 		return nil
 	})
 	js.Global().Call("setTimeout", renderer)
+
 	<-sketchLoop
 }

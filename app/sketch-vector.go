@@ -2,17 +2,24 @@ package main
 
 type SketchVector struct {
 	Sketch
+	sp SettingPane
 }
 
 func NewSketchVector(ctx *Canvas2d) *SketchVector {
-	return &SketchVector{
-		Sketch{
-			ctx: ctx,
-		},
-	}
+	sp := NewSettingPane("settings", "Vector Settings")
+	crossSize := NewInputControl("crossSize", "number")
+	sp.AddInputControl(crossSize)
+
+	sketch := &SketchVector{}
+	sketch.ctx = ctx
+	sketch.sp = sp
+
+	return sketch
 }
 
 func (sketch *SketchVector) RenderLoop() {
+
+	// NewSettingPane("settings")
 
 	sketch.angle += 0.1
 
