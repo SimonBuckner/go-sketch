@@ -20,15 +20,19 @@ type SettingPane struct {
 func NewSettingPane(containerId string, title string) SettingPane {
 
 	doc := js.Global().Get("document")
-	panel := doc.Call("getElementById", containerId)
 
 	sp := SettingPane{
 		doc:           doc,
-		panel:         panel,
+		panel:         doc.Call("getElementById", containerId),
+		form:          doc.Call("createElement", "form"),
 		Title:         title,
 		InputControls: make([]InputControl, 0),
-		form:          js.Value{},
 	}
+
+	h1 := doc.Call("createElement", "h1")
+	h1.Set("textContent", title)
+	sp.panel.Call("appendChild", h1)
+	sp.panel.Call("appendChild", sp.form)
 
 	return sp
 }
@@ -40,11 +44,6 @@ func (sp *SettingPane) AddInputControl(inputControl InputControl) {
 
 func (sp *SettingPane) Render() {
 
-	h1 := sp.doc.Call("createElement", "h1")
-	h1.Set("textContent", sp.Title)
-	sp.panel.Call("appendChild", h1)
-
-	sp.form = sp.doc.Call("createElement", "form")
 	if len(sp.InputControls) > 0 {
 		for _, ic := range sp.InputControls {
 			fmt.Printf("calling redner for %v\n", ic.Id)
@@ -59,14 +58,15 @@ type InputControl struct {
 	InputType string
 	Value     js.Value
 	Pane      *SettingPane
+	Input     js.Value
+	Label     js.Value
 }
 
 func NewInputControl(id string, inputType string) InputControl {
 	ic := InputControl{
-		Id:        id,
+		Id:        id + "InputControl",
 		InputType: inputType,
 		Value:     js.Value{},
-		Class:     "",
 	}
 
 	return ic
@@ -75,25 +75,56 @@ func NewInputControl(id string, inputType string) InputControl {
 func (ic *InputControl) Render() {
 
 	fmt.Printf("Adding Input Control %v\n", ic.Id)
-	// div := ic.Pane.doc.Call("createElement", "div")
+
 	label := ic.Pane.doc.Call("createElement", "label")
-	control := ic.Pane.doc.Call("createElement", "input")
+	input := ic.Pane.doc.Call("createElement", "input")
 
-	inputName := ic.Id + "InputControl"
-
-	label.Set("for", "inputName")
-	label.Set("class", "inputName")
+	label.Set("htmlFor", ic.Id)
 	label.Set("textContent", ic.Id)
-	label.Set("id", "BALS")
 
-	control.Set("type", ic.InputType)
-	control.Set("id", inputName)
-	control.Set("name", inputName)
+	input.Set("type", ic.InputType)
+	input.Set("id", ic.Id)
+	input.Call("addEventListener", "change", js.FuncOf(ic.OnChange))
+	// input.Call("addEventListener", "keydown", js.FuncOf(ic.OnKeyDown))
+	// input.Call("addEventListener", "keydown", js.FuncOf(ic.OnInput))
 
-	// div.Call("appendChild", control)
-	// div.Call("appendChild", label)
-	ic.Pane.panel.Call("appendChild", label)
-	ic.Pane.panel.Call("appendChild", control)
-	// ic.Pane.form.Call("appendChild", div)
+	ic.Pane.form.Call("appendChild", label)
+	ic.Pane.form.Call("appendChild", input)
 
+}
+
+func (ic *InputControl) OnChange(this js.Value, args []js.Value) interface{} {
+	if len(args) == 1 {
+		args[0].Call("preventDefault")
+		input := ic.Pane.doc.Call("getElementById", ic.Id)
+		if !input.Truthy() {
+			fmt.Println("input not found")
+		}
+		fmt.Printf("OnChange: %v\n", input.Get("value").String())
+	}
+	return false
+}
+
+func (ic *InputControl) OnKeyDown(this js.Value, args []js.Value) interface{} {
+	if len(args) == 1 {
+		args[0].Call("preventDefault")
+		input := ic.Pane.doc.Call("getElementById", ic.Id)
+		if !input.Truthy() {
+			fmt.Println("input not found")
+		}
+		fmt.Printf("OnKeyDown: %v\n", input.Get("value").String())
+	}
+	return false
+}
+
+func (ic *InputControl) OnInput(this js.Value, args []js.Value) interface{} {
+	if len(args) == 1 {
+		args[0].Call("preventDefault")
+		input := ic.Pane.doc.Call("getElementById", ic.Id)
+		if !input.Truthy() {
+			fmt.Println("input not found")
+		}
+		fmt.Printf("OnInput: %v\n", input.Get("value").String())
+	}
+	return false
 }

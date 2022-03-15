@@ -19,8 +19,6 @@ func NewSketchVector(ctx *Canvas2d) *SketchVector {
 
 func (sketch *SketchVector) RenderLoop() {
 
-	// NewSettingPane("settings")
-
 	sketch.angle += 0.1
 
 	sketch.ctx.SetFillStyle(Color{R: 11, G: 5, B: 38})
