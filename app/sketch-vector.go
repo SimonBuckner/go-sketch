@@ -1,7 +1,5 @@
 package main
 
-import "strconv"
-
 type SketchVector struct {
 	Sketch
 	sp *SettingPane
@@ -9,9 +7,9 @@ type SketchVector struct {
 
 func NewSketchVector(ctx *Canvas2d) *SketchVector {
 	sp := NewSettingPane("settings", "Vector Settings")
-	crossSize := NewInputControl("crossSize", "number", "Cross Size", 50)
+	crossSize := NewInputControl("crossSize", "number", "Cross Size", "50")
 	sp.AddInputControl(crossSize)
-	arrowSize := NewInputControl("arrowSize", "number", "Arrow Size", 50)
+	arrowSize := NewInputControl("arrowSize", "number", "Arrow Size", "50")
 	sp.AddInputControl(arrowSize)
 
 	sketch := &SketchVector{}
@@ -30,8 +28,7 @@ func (sketch *SketchVector) RenderLoop() {
 
 	sketch.ctx.SetStrokeStyle(NewColor(255, 255, 255))
 
-	val := sketch.sp.GetValue("crossSize").String()
-	crossSize, _ := strconv.ParseFloat(val, 64)
+	crossSize := sketch.sp.GetValueAsFloat("crossSize", 50.0)
 	sketch.ctx.Save()
 	sketch.ctx.Translate(width*0.5, height*0.5)
 	sketch.ctx.SetStrokeStyle(NewColor(255, 255, 255))

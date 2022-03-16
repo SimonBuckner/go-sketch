@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"syscall/js"
 )
 
@@ -53,6 +54,30 @@ func (sp *SettingPane) GetValue(id string) js.Value {
 	return js.Value{}
 }
 
+func (sp *SettingPane) GetValueAsFloat(id string, defaultValue float64) float64 {
+	if ic, found := sp.InputControls[id]; found {
+
+		val, err := strconv.ParseFloat(ic.Value.String(), 64)
+		if err == nil {
+			return val
+		}
+		return defaultValue
+	}
+	return defaultValue
+}
+
+func (sp *SettingPane) GetValueAsInt(id string, defaultValue int64) int64 {
+	if ic, found := sp.InputControls[id]; found {
+
+		val, err := strconv.ParseInt(ic.Value.String(), 10, 64)
+		if err == nil {
+			return val
+		}
+		return defaultValue
+	}
+	return defaultValue
+}
+
 type InputControl struct {
 	Id        string
 	InputType string
@@ -85,7 +110,7 @@ func (ic *InputControl) Render() {
 	input.Set("type", ic.InputType)
 	input.Set("id", ic.Id+"_IC")
 	input.Set("value", ic.Value)
-	input.Call("addEventListener", "change", js.FuncOf(ic.OnChange))
+	input.Call("addEventListener", "input", js.FuncOf(ic.OnInput))
 
 	// if ic.Container == nil {
 	// 	fmt.Println("Container is empty")
@@ -95,7 +120,7 @@ func (ic *InputControl) Render() {
 
 }
 
-func (ic *InputControl) OnChange(this js.Value, args []js.Value) interface{} {
+func (ic *InputControl) OnInput(this js.Value, args []js.Value) interface{} {
 	if len(args) >= 1 {
 		ic.Value = this.Get("value")
 		// fmt.Printf("OnChange: %v\n", ic.Value.String())
