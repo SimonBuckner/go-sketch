@@ -28,3 +28,11 @@ func (d *Document) GetElementById(id string) js.Value {
 func (d *Document) CreateElement(tagType string) js.Value {
 	return d.doc.Call("createElement", tagType)
 }
+
+func (d *Document) Call(m string, args ...interface{}) js.Value {
+	return d.doc.Call(m, args)
+}
+
+func (d *Document) Truthy() bool {
+	return d.doc.Truthy()
+}

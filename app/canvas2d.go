@@ -23,14 +23,14 @@ func (c Color) ToString() string {
 }
 
 type Canvas2d struct {
-	doc     js.Value
+	doc     *Document
 	canvas  js.Value
 	context js.Value
 }
 
 func NewCanvas2d(canvasId string) *Canvas2d {
-	doc := js.Global().Get("document")
-	canvas := doc.Call("getElementById", canvasId)
+	doc := GetDocument()
+	canvas := doc.GetElementById(canvasId)
 	context := canvas.Call("getContext", "2d")
 
 	if doc.Truthy() && canvas.Truthy() && context.Truthy() {
@@ -40,6 +40,7 @@ func NewCanvas2d(canvasId string) *Canvas2d {
 			context: context,
 		}
 	}
+	fmt.Println("error getting canvas")
 	return nil
 }
 

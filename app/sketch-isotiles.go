@@ -1,17 +1,17 @@
 package main
 
-type SketchVector struct {
+type SketchIsoTiles struct {
 	Sketch
 	Settings *SettingPane
 }
 
-func NewSketchVector(ctx *Canvas2d) *SketchVector {
+func NewSketchIsoTiles(ctx *Canvas2d) *SketchVector {
 	sp := NewSettingPane("settings", "Vector Settings")
 
 	sp.AddInputControl("title", "text", "Sketch Title", "go-sketch")
-	sp.AddInputControl("crossSize", "number", "Cross Size", int64(100))
-	sp.AddInputControl("arrowSize", "number", "Arrow Size", int64(200))
-	sp.AddInputControl("speed", "number", "Rotation Speed", float64(0.1))
+	sp.AddInputControl("crossSize", "number", "Cross Size", "100")
+	sp.AddInputControl("arrowSize", "number", "Arrow Size", "200")
+	sp.AddInputControl("speed", "number", "Rotation Speed", "0.1")
 
 	sketch := &SketchVector{}
 	sketch.ctx = ctx
@@ -20,17 +20,15 @@ func NewSketchVector(ctx *Canvas2d) *SketchVector {
 	return sketch
 }
 
-func (sketch *SketchVector) Activate() {
+func (sketch *SketchIsoTiles) Activate() {
 	sketch.Settings.Activate()
 }
 
-func (sketch *SketchVector) UpdateSetting(id string, value interface{}) {
+func (sketch *SketchIsoTiles) UpdateSetting(id string, value interface{}) {
 	sketch.Settings.SetValue(id, value)
 }
 
-func (sketch *SketchVector) Render() {
-
-	sketch.Settings.Render()
+func (sketch *SketchIsoTiles) Render() {
 
 	speed := sketch.Settings.GetValueAsFloat("speed", -99)
 	sketch.angle += speed
@@ -63,6 +61,4 @@ func (sketch *SketchVector) Render() {
 	arrow.Angle = 360 - sketch.angle
 	arrow.Stroke(sketch.ctx)
 	sketch.ctx.Restore()
-
-	sketch.Settings.SetValue("speed", speed+0.001)
 }
