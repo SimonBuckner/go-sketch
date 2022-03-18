@@ -47,7 +47,7 @@ func main() {
 
 	sketchLoop := make(chan bool)
 	var renderer js.Func
-	renderer = js.FuncOf(func(this js.Value, arps []js.Value) interface{} {
+	renderer = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		sketch.RenderLoop()
 		js.Global().Call("setTimeout", renderer)
 		return nil
