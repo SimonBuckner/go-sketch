@@ -30,7 +30,7 @@ func (sketch *SketchVector) UpdateSetting(id string, value interface{}) {
 
 func (sketch *SketchVector) Render() {
 
-	sketch.Settings.Render()
+	sketch.Settings.RefreshValues()
 
 	speed := sketch.Settings.GetValueAsFloat("speed", -99)
 	sketch.angle += speed

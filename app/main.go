@@ -17,41 +17,55 @@ type Sketcher interface {
 }
 
 type Sketch struct {
-	ctx   *Canvas2d
-	angle float64
+	ctx           *Canvas2d
+	angle         float64
+	sketches      []Sketcher
+	currentSketch Sketcher
 }
-
-var sketches []Sketcher
-var currentSketch Sketcher
 
 func main() {
 
 	fmt.Println("Go WebAssembly Initialized 3")
 
-	ctx := NewCanvas2d("sketch")
-	if ctx == nil {
+	sketch := Sketch{}
+	sketch.ctx = NewCanvas2d("sketch")
+	if sketch.ctx == nil {
 		fmt.Println("unable to get c2d")
 		return
 	}
 
-	ctx.SetWidth(width)
-	ctx.SetHeight(height)
+	sketch.ctx.SetWidth(width)
+	sketch.ctx.SetHeight(height)
 
-	sketches = make([]Sketcher, 2)
-	sketches[0] = NewSketchVector(ctx)
-	sketches[1] = NewSketchIsoTiles(ctx)
-	currentSketch = sketches[0]
-	currentSketch.Activate()
-	currentSketch.UpdateSetting("title", "So how to we push updates?")
+	sketch.sketches = make([]Sketcher, 2)
+	sketch.sketches[0] = NewSketchVector(sketch.ctx)
+	sketch.sketches[1] = NewSketchIsoTiles(sketch.ctx)
+	sketch.currentSketch = sketch.sketches[0]
+	sketch.currentSketch.Activate()
+
+	js.Global().Set("EnableVectors", js.FuncOf(sketch.EnableVectors))
+	js.Global().Set("EnableIsoTiles", js.FuncOf(sketch.EnableIsoTiles))
 
 	sketchLoop := make(chan bool)
-	js.Global().Call("setTimeout", js.FuncOf(RenderLoop))
+	js.Global().Call("setTimeout", js.FuncOf(sketch.RenderLoop))
 
 	<-sketchLoop
 }
 
-func RenderLoop(this js.Value, args []js.Value) interface{} {
-	currentSketch.Render()
-	js.Global().Call("setTimeout", js.FuncOf(RenderLoop))
+func (sketch *Sketch) RenderLoop(this js.Value, args []js.Value) interface{} {
+	sketch.currentSketch.Render()
+	js.Global().Call("setTimeout", js.FuncOf(sketch.RenderLoop))
+	return nil
+}
+
+func (sketch *Sketch) EnableVectors(this js.Value, args []js.Value) interface{} {
+	sketch.currentSketch = sketch.sketches[0]
+	sketch.currentSketch.Activate()
+	return nil
+}
+
+func (sketch *Sketch) EnableIsoTiles(this js.Value, args []js.Value) interface{} {
+	sketch.currentSketch = sketch.sketches[1]
+	sketch.currentSketch.Activate()
 	return nil
 }

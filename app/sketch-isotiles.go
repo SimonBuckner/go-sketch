@@ -6,12 +6,12 @@ type SketchIsoTiles struct {
 }
 
 func NewSketchIsoTiles(ctx *Canvas2d) *SketchVector {
-	sp := NewSettingPane("settings", "Vector Settings")
+	sp := NewSettingPane("settings", "ISO Tiles")
 
-	sp.AddInputControl("title", "text", "Sketch Title", "go-sketch")
-	sp.AddInputControl("crossSize", "number", "Cross Size", "100")
-	sp.AddInputControl("arrowSize", "number", "Arrow Size", "200")
-	sp.AddInputControl("speed", "number", "Rotation Speed", "0.1")
+	// sp.AddInputControl("title", "text", "Sketch Title", "go-sketch")
+	// sp.AddInputControl("crossSize", "number", "Cross Size", "100")
+	// sp.AddInputControl("arrowSize", "number", "Arrow Size", "200")
+	// sp.AddInputControl("speed", "number", "Rotation Speed", "0.1")
 
 	sketch := &SketchVector{}
 	sketch.ctx = ctx

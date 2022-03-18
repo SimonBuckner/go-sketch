@@ -19,7 +19,6 @@ func NewColor(r, g, b int) Color {
 
 func (c Color) ToString() string {
 	return fmt.Sprintf("0x%02x%02x%02x", c.R, c.G, c.B)
-	// return fmt.Sprintf("0x%02x%02x%02x%02x", c.R, c.G, c.B, c.A)
 }
 
 type Canvas2d struct {

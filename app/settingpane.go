@@ -7,24 +7,10 @@ import (
 )
 
 type SettingPane struct {
-	Document  *Document
 	Container js.Value
 	Title     string
 	Controls  map[string]*SettingControl
 	Keys      []string
-}
-
-type SettingControl struct {
-	Id           string
-	InputType    string
-	Label        string
-	Value        js.Value
-	DefaultValue js.Value
-	Container    *SettingPane
-}
-
-func JsEvent(this js.Value, event js.Value) interface{} {
-	return false
 }
 
 func NewSettingPane(containerId string, title string) *SettingPane {
@@ -32,7 +18,6 @@ func NewSettingPane(containerId string, title string) *SettingPane {
 	doc := GetDocument()
 
 	sp := SettingPane{
-		Document:  doc,
 		Title:     title,
 		Container: doc.GetElementById(containerId),
 		Controls:  make(map[string]*SettingControl, 0),
@@ -42,21 +27,13 @@ func NewSettingPane(containerId string, title string) *SettingPane {
 }
 
 func (sp *SettingPane) AddInputControl(id string, inputType string, label string, defaultValue interface{}) {
-	control := &SettingControl{
-		Id:           id,
-		InputType:    inputType,
-		Label:        label,
-		Value:        js.ValueOf(defaultValue),
-		DefaultValue: js.ValueOf(defaultValue),
-	}
+	control := NewSettingControl(id, inputType, label, defaultValue)
 	sp.Keys = append(sp.Keys, id)
-
-	control.Container = sp
 	sp.Controls[control.Id] = control
 }
 
 func (sp *SettingPane) Activate() {
-	doc := sp.Document
+	doc := GetDocument()
 	sp.Container.Set("textContent", "")
 
 	h1 := doc.CreateElement("h1")
@@ -70,7 +47,7 @@ func (sp *SettingPane) Activate() {
 
 	if len(sp.Keys) > 0 {
 		for _, key := range sp.Keys {
-			label, input := sp.Controls[key].Render()
+			label, input := sp.Controls[key].Activate()
 			div.Call("appendChild", label)
 			div.Call("appendChild", input)
 		}
@@ -80,18 +57,13 @@ func (sp *SettingPane) Activate() {
 
 }
 
-func (sp *SettingPane) Render() {
-
-	h1 := sp.Document.GetElementById("settings_title")
+func (sp *SettingPane) RefreshValues() {
+	doc := GetDocument()
+	h1 := doc.GetElementById("settings_title")
 	h1.Set("textContent", sp.Title)
 
 	for _, control := range sp.Controls {
-		input := sp.Document.GetElementById("setting_" + control.Id)
-		if input.Truthy() {
-			input.Set("value", control.Value)
-		} else {
-			fmt.Printf("unable to get value %v\n", control.Id)
-		}
+		control.RefreshValue()
 	}
 }
 
@@ -143,9 +115,28 @@ func (sp *SettingPane) SetValue(id string, value interface{}) {
 	}
 }
 
-func (control *SettingControl) Render() (label, input js.Value) {
+type SettingControl struct {
+	Id           string
+	InputType    string
+	Label        string
+	Value        js.Value
+	DefaultValue js.Value
+}
 
-	doc := control.Container.Document
+func NewSettingControl(id string, inputType string, label string, defaultValue interface{}) *SettingControl {
+	control := &SettingControl{
+		Id:           id,
+		InputType:    inputType,
+		Label:        label,
+		Value:        js.ValueOf(defaultValue),
+		DefaultValue: js.ValueOf(defaultValue),
+	}
+	return control
+}
+
+func (control *SettingControl) Activate() (label, input js.Value) {
+
+	doc := GetDocument()
 
 	label = doc.CreateElement("label")
 	input = doc.CreateElement("input")
@@ -167,6 +158,20 @@ func (control *SettingControl) Render() (label, input js.Value) {
 	}))
 
 	return
+}
+
+func (control *SettingControl) RefreshValue() {
+	doc := GetDocument()
+	input := doc.GetElementById("setting_" + control.Id)
+	if input.Truthy() {
+		input.Set("value", control.Value)
+	} else {
+		fmt.Printf("unable to get value %v\n", control.Id)
+	}
+}
+
+func JsEvent(this js.Value, event js.Value) interface{} {
+	return false
 }
 
 func (control *SettingControl) OnInput(this js.Value, event js.Value) interface{} {
