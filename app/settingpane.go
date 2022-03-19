@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 	"syscall/js"
 )
@@ -9,7 +8,7 @@ import (
 type SettingPane struct {
 	Container js.Value
 	Title     string
-	Controls  map[string]*SettingControl
+	Controls  map[string]*InputControl
 	Keys      []string
 }
 
@@ -20,14 +19,14 @@ func NewSettingPane(containerId string, title string) *SettingPane {
 	sp := SettingPane{
 		Title:     title,
 		Container: doc.GetElementById(containerId),
-		Controls:  make(map[string]*SettingControl, 0),
+		Controls:  make(map[string]*InputControl, 0),
 	}
 
 	return &sp
 }
 
 func (sp *SettingPane) AddInputControl(id string, inputType string, label string, defaultValue interface{}) {
-	control := NewSettingControl(id, inputType, label, defaultValue)
+	control := NewInputControl(id, inputType, label, defaultValue)
 	sp.Keys = append(sp.Keys, id)
 	sp.Controls[control.Id] = control
 }
@@ -113,68 +112,4 @@ func (sp *SettingPane) SetValue(id string, value interface{}) {
 	if ic, found := sp.Controls[id]; found {
 		ic.Value = js.ValueOf(value)
 	}
-}
-
-type SettingControl struct {
-	Id           string
-	InputType    string
-	Label        string
-	Value        js.Value
-	DefaultValue js.Value
-}
-
-func NewSettingControl(id string, inputType string, label string, defaultValue interface{}) *SettingControl {
-	control := &SettingControl{
-		Id:           id,
-		InputType:    inputType,
-		Label:        label,
-		Value:        js.ValueOf(defaultValue),
-		DefaultValue: js.ValueOf(defaultValue),
-	}
-	return control
-}
-
-func (control *SettingControl) Activate() (label, input js.Value) {
-
-	doc := GetDocument()
-
-	label = doc.CreateElement("label")
-	input = doc.CreateElement("input")
-
-	label.Set("htmlFor", "setting_"+control.Id)
-	label.Set("textContent", control.Label)
-
-	input.Set("type", control.InputType)
-	input.Set("id", "setting_"+control.Id)
-	input.Set("value", control.Value)
-	input.Set("placeHolder", control.DefaultValue)
-
-	input.Call("addEventListener", "input", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		if len(args) < 1 {
-			return js.Value{}
-		}
-		event := args[0]
-		return control.OnInput(this, event)
-	}))
-
-	return
-}
-
-func (control *SettingControl) RefreshValue() {
-	doc := GetDocument()
-	input := doc.GetElementById("setting_" + control.Id)
-	if input.Truthy() {
-		input.Set("value", control.Value)
-	} else {
-		fmt.Printf("unable to get value %v\n", control.Id)
-	}
-}
-
-func JsEvent(this js.Value, event js.Value) interface{} {
-	return false
-}
-
-func (control *SettingControl) OnInput(this js.Value, event js.Value) interface{} {
-	control.Value = this.Get("value")
-	return false
 }
