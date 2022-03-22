@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	width  = 1024
-	height = 768
+	width  = 1080
+	height = 1080
 )
 
 type Sketcher interface {
@@ -41,7 +41,7 @@ func main() {
 	sketch.sketches = make([]Sketcher, 2)
 	sketch.sketches[0] = NewSketchVector(sketch.ctx)
 	sketch.sketches[1] = NewSketchIsoTiles(sketch.ctx)
-	sketch.currentSketch = sketch.sketches[0]
+	sketch.currentSketch = sketch.sketches[1]
 	sketch.currentSketch.Activate()
 
 	sketch.buttons = make([]*ButtonControl, 2)
